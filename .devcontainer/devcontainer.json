@@ -13,7 +13,7 @@
       "extensions": ["hashicorp.terraform"]
     }
   },
-  "postCreateCommand": "curl -sS https://starship.rs/install.sh | sh -s -- -y && grep -qxF 'eval \"$(starship init bash)\"' ~/.bashrc || echo 'eval \"$(starship init bash)\"' >> ~/.bashrc"
+  "postCreateCommand": "bash .devcontainer/scripts/post-create.sh"
 
   // Features to add to the dev container. More info: https://containers.dev/features.
   // "features": {},
