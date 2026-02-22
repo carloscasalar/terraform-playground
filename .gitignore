@@ -1,1 +1,6 @@
-devops_accessKeys.csv
+*_accessKeys.csv
+.terraform
+.terraform.lock.hcl
+terraform.tfvars
+*.tfvars
+*.tfplan

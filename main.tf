@@ -1,8 +1,8 @@
 # PROVIDERS
 provider "aws" {
-  access_key = "AWS_ACCESS_KEY"
-  secret_key = "AWS_SECRET_KEY"
-  region     = "eu-west-3"
+  access_key = var.aws_access_key
+  secret_key = var.aws_secret_key
+  region     = "eu-north-1"
 }
 
 # DATA
