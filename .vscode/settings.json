@@ -1,0 +1,4 @@
+{
+  // https://github.com/microsoft/vscode/issues/252077#issuecomment-3807313870
+  "extensions.supportNodeGlobalNavigator": true
+}
