@@ -17,8 +17,8 @@ data "aws_ssm_parameter" "ami" {
 
 # Here aws_vpc is the resource type and vpc is our arbitrary identifier
 resource "aws_vpc" "vpc" {
-  cidr_block           = "10.0.0.0/16"
-  enable_dns_hostnames = "true"
+  cidr_block           = var.vpc_cidr_block
+  enable_dns_hostnames = var.vpc_enable_dns_hostnames
 }
 
 resource "aws_internet_gateway" "igw" {
@@ -26,9 +26,9 @@ resource "aws_internet_gateway" "igw" {
 }
 
 resource "aws_subnet" "subnet1" {
-  cidr_block              = "10.0.0.0/24"
+  cidr_block              = var.subnet_cidr_block
   vpc_id                  = aws_vpc.vpc.id
-  map_public_ip_on_launch = "true"
+  map_public_ip_on_launch = var.subnet_map_public_ip_on_launch
 }
 
 # ROUTING #
@@ -36,7 +36,7 @@ resource "aws_route_table" "rtb" {
   vpc_id = aws_vpc.vpc.id
 
   route {
-    cidr_block = "0.0.0.0/0"
+    cidr_block = var.route_table_to_cidr_block
     gateway_id = aws_internet_gateway.igw.id
   }
 }
@@ -54,25 +54,25 @@ resource "aws_security_group" "nginx-sg" {
 
   # HTTP access from anywhere
   ingress {
-    from_port   = 80
-    to_port     = 80
+    from_port   = var.sg_ingress_tcp_port
+    to_port     = var.sg_ingress_tcp_port
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = var.sg_ingress_cidr_block
   }
 
   # outbound internet access
   egress {
-    from_port   = 0
-    to_port     = 0
+    from_port   = var.sg_egress_tcp_port
+    to_port     = var.sg_egress_tcp_port
     protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = var.sg_egress_cidr_block
   }
 }
 
 # INSTANCES #
 resource "aws_instance" "nginx1" {
   ami                    = nonsensitive(data.aws_ssm_parameter.ami.value)
-  instance_type          = "t3.micro"
+  instance_type          = var.aws_instance_type
   subnet_id              = aws_subnet.subnet1.id
   vpc_security_group_ids = [aws_security_group.nginx-sg.id]
 
