@@ -19,16 +19,22 @@ data "aws_ssm_parameter" "ami" {
 resource "aws_vpc" "vpc" {
   cidr_block           = var.vpc_cidr_block
   enable_dns_hostnames = var.vpc_enable_dns_hostnames
+
+  tags = local.common_tags
 }
 
 resource "aws_internet_gateway" "igw" {
   vpc_id = aws_vpc.vpc.id
+
+  tags = local.common_tags
 }
 
 resource "aws_subnet" "subnet1" {
   cidr_block              = var.subnet_cidr_block
   vpc_id                  = aws_vpc.vpc.id
   map_public_ip_on_launch = var.subnet_map_public_ip_on_launch
+
+  tags = local.common_tags
 }
 
 # ROUTING #
@@ -39,6 +45,8 @@ resource "aws_route_table" "rtb" {
     cidr_block = var.route_table_to_cidr_block
     gateway_id = aws_internet_gateway.igw.id
   }
+
+  tags = local.common_tags
 }
 
 resource "aws_route_table_association" "rta-subnet1" {
@@ -67,6 +75,8 @@ resource "aws_security_group" "nginx-sg" {
     protocol    = "-1"
     cidr_blocks = var.sg_egress_cidr_block
   }
+
+  tags = local.common_tags
 }
 
 # INSTANCES #
@@ -92,4 +102,6 @@ systemctl enable nginx
 sudo rm /usr/share/nginx/html/index.html
 echo '<html><head><title>Lemon Land Server</title></head><body style=\"background-color:#1F778D\"><p style=\"text-align: center;\"><span style=\"color:#FFFFFF;\"><span style=\"font-size:28px;\">You did it! Have a &#127790;</span></span></p></body></html>' | sudo tee /usr/share/nginx/html/index.html
   EOF
+
+  tags = local.common_tags
 }

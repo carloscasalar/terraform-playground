@@ -1,3 +1,21 @@
+# COMMON
+variable "company"{
+  description = "Company name for resource tagging"
+  type = string
+  default = "ACME"
+}
+
+variable "project"{
+  description = "Project name for resource tagging"
+  type = string
+}
+
+variable "billing_code"{
+  description = "Billing code for resource tagging"
+  type = string
+}
+
+# PROVIDERS
 variable "aws_access_key" {
   description = "AWS access key for Terraform"
   type        = string
