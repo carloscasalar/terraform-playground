@@ -50,3 +50,8 @@ Review the plan then:
 ```bash
 terraform apply d1.tfplan
 ```
+
+Destroy all resurces:
+```bash
+terraform destroy
+```
