@@ -9,3 +9,9 @@ variable "aws_secret_key" {
   type        = string
   sensitive   = true
 }
+
+variable "aws_region" {
+  description = "AWS region to use for resources"
+  default = "eu-north-1"
+  type = string
+}
