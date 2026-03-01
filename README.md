@@ -38,6 +38,19 @@ aws_access_key = "YOUR-ACCESS-KEY"
 aws_secret_key = "YOUR-SECRET-KEY"
 ```
 
+Or export them as env vars:
+```env
+TF_VAR_aws_access_key = "YOUR-ACCESS-KEY"
+TF_VAR_aws_secret_key = "YOUR-SECRET-KEY"
+```
+
+You can also customize variables by passing them as `-var` to the terraform cli:
+```sh
+terraform plan \
+  -var=billing_code="F0000" \
+  -var=project="my-web"
+```
+
 ## Deploy
 
 Execute:
