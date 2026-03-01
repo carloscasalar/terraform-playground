@@ -8,28 +8,31 @@ Verify it is properly configured by executing `aws ec2 describe-instances`
 
 ```mermaid
 graph TB
-    subgraph "VPC (10.0.0.0/16)"
-        subgraph "Subnet (10.0.0.0/24)"
-            NGINX[EC2 Instance - nginx1<br/>t2.micro<br/>NGINX Server]
+    subgraph VPC["VPC<br/>(10.0.0.0/16)"]
+        subgraph Subnet["Subnet<br/>(10.0.0.0/24)"]
+            NGINX["EC2 Instance - nginx1<br/>t3.micro<br/>NGINX Server"]
         end
-
-        SG[Security Group<br/>nginx-sg<br/>Ingress: HTTP:80<br/>Egress: All]
-        RTB[Route Table<br/>rtb]
+        
+        SG["Security Group<br/>nginx-sg<br/>━━━━━━━━━━<br/>Ingress: TCP/80<br/>Egress: All Traffic"]
+        RTB["Route Table<br/>rtb<br/>━━━━━━━━━━<br/>0.0.0.0/0 → IGW"]
     end
 
-    IGW[Internet Gateway<br/>igw]
+    IGW["Internet Gateway<br/>igw"]
     INTERNET((Internet<br/>0.0.0.0/0))
 
     IGW -->|attached to| VPC
-    RTB -->|route 0.0.0.0/0| IGW
-    RTB -.associates with.- Subnet
-    NGINX -.uses.- SG
-    INTERNET -->|HTTP Traffic| IGW
+    RTB -->|associated with| Subnet
+    NGINX -->|secured by| SG
+    IGW -->|receives| INTERNET
+    INTERNET -->|HTTP Traffic<br/>:80| NGINX
 
     style NGINX fill:#f9f,stroke:#333,stroke-width:2px
     style SG fill:#bbf,stroke:#333,stroke-width:2px
     style IGW fill:#bfb,stroke:#333,stroke-width:2px
     style INTERNET fill:#fbb,stroke:#333,stroke-width:2px
+    style VPC fill:#f0f0f0,stroke:#333,stroke-width:2px
+    style Subnet fill:#ffffff,stroke:#333,stroke-width:1px
+    style RTB fill:#e6f3ff,stroke:#333,stroke-width:1px
 ```
 ## Configure
 Create a file named `terraform.tfvars` with this content:
