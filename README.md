@@ -10,31 +10,52 @@ Verify that tf files are valid `terraform validate`
 
 ```mermaid
 graph TB
-    subgraph VPC["VPC<br/>(10.0.0.0/16)"]
-        subgraph Subnet["Subnet<br/>(10.0.0.0/24)"]
-            NGINX["EC2 Instance - nginx1<br/>t3.micro<br/>NGINX Server"]
-        end
-
-        SG["Security Group<br/>nginx-sg<br/>━━━━━━━━━━<br/>Ingress: TCP/80<br/>Egress: All Traffic"]
-        RTB["Route Table<br/>rtb<br/>━━━━━━━━━━<br/>0.0.0.0/0 → IGW"]
-    end
-
-    IGW["Internet Gateway<br/>igw"]
     INTERNET((Internet<br/>0.0.0.0/0))
 
-    IGW -->|attached to| VPC
-    RTB -->|associated with| Subnet
-    NGINX -->|secured by| SG
-    IGW -->|receives| INTERNET
-    INTERNET -->|HTTP Traffic<br/>:80| NGINX
+    subgraph VPC["VPC<br/>(10.0.0.0/16)"]
+        IGW["Internet Gateway<br/>igw"]
 
-    style NGINX fill:#f9f,stroke:#333,stroke-width:2px
+        RTB["Route Table<br/>rtb<br/>━━━━━━━━━━<br/>0.0.0.0/0 → IGW"]
+
+        LB["Application Load Balancer<br/>lc-web-lb<br/>Port 80"]
+        LB_SG["Security Group<br/>lb_sg<br/>━━━━━━━━━━<br/>Ingress: TCP/80"]
+
+        TG["Target Group<br/>lc-web-lb-tg<br/>Port 80"]
+
+        subgraph Subnet1["Subnet 1<br/>(10.0.0.0/24)<br/>AZ 0"]
+            NGINX1["EC2 Instance - nginx1<br/>t3.micro<br/>NGINX Server"]
+        end
+
+        subgraph Subnet2["Subnet 2<br/>(10.0.1.0/24)<br/>AZ 1"]
+            NGINX2["EC2 Instance - nginx2<br/>t3.micro<br/>NGINX Server"]
+        end
+
+        SG["Security Group<br/>nginx-sg<br/>━━━━━━━━━━<br/>Ingress: TCP/80<br/>Ingress: TCP/22<br/>Egress: All Traffic"]
+    end
+
+    INTERNET -->|HTTP Traffic<br/>:80| LB
+    IGW -->|attached to| VPC
+    RTB -->|associated with| Subnet1
+    RTB -->|associated with| Subnet2
+    LB -->|secured by| LB_SG
+    LB -->|forwards to| TG
+    TG -->|targets| NGINX1
+    TG -->|targets| NGINX2
+    NGINX1 -->|secured by| SG
+    NGINX2 -->|secured by| SG
+
+    style NGINX1 fill:#f9f,stroke:#333,stroke-width:2px
+    style NGINX2 fill:#f9f,stroke:#333,stroke-width:2px
     style SG fill:#bbf,stroke:#333,stroke-width:2px
+    style LB_SG fill:#bbf,stroke:#333,stroke-width:2px
     style IGW fill:#bfb,stroke:#333,stroke-width:2px
     style INTERNET fill:#fbb,stroke:#333,stroke-width:2px
     style VPC fill:#f0f0f0,stroke:#333,stroke-width:2px
-    style Subnet fill:#ffffff,stroke:#333,stroke-width:1px
+    style Subnet1 fill:#ffffff,stroke:#333,stroke-width:1px
+    style Subnet2 fill:#ffffff,stroke:#333,stroke-width:1px
     style RTB fill:#e6f3ff,stroke:#333,stroke-width:1px
+    style LB fill:#e6f3ff,stroke:#333,stroke-width:1px
+    style TG fill:#e6f3ff,stroke:#333,stroke-width:1px
 ```
 ## Configure
 Create a file named `terraform.tfvars` with this content:
