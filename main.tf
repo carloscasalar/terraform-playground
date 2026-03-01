@@ -68,6 +68,14 @@ resource "aws_security_group" "nginx-sg" {
     cidr_blocks = var.sg_ingress_cidr_block
   }
 
+  # SSH access from anywhere (for fast debugging. Better only from my ip)
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = var.sg_ingress_cidr_block
+  }
+
   # outbound internet access
   egress {
     from_port   = var.sg_egress_tcp_port

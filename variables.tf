@@ -78,6 +78,7 @@ variable "sg_ingress_tcp_port" {
   type = number
   default = 80
 }
+
 variable "sg_egress_cidr_block" {
   description = "CIDR Blocks for egress"
   type = list(string)
