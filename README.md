@@ -12,7 +12,7 @@ graph TB
         subgraph Subnet["Subnet<br/>(10.0.0.0/24)"]
             NGINX["EC2 Instance - nginx1<br/>t3.micro<br/>NGINX Server"]
         end
-        
+
         SG["Security Group<br/>nginx-sg<br/>━━━━━━━━━━<br/>Ingress: TCP/80<br/>Egress: All Traffic"]
         RTB["Route Table<br/>rtb<br/>━━━━━━━━━━<br/>0.0.0.0/0 → IGW"]
     end
@@ -70,4 +70,41 @@ terraform apply d1.tfplan
 Destroy all resurces:
 ```bash
 terraform destroy
+```
+
+### Debugging
+
+You can execute dig to find out the dns in the output:
+```sh
+⬢ [Docker] ❯ dig ec2-13-60-19-147.eu-north-1.compute.amazonaws.com
+
+; <<>> DiG 9.18.39-0ubuntu0.24.04.2-Ubuntu <<>> ec2-13-60-19-147.eu-north-1.compute.amazonaws.com
+;; global options: +cmd
+;; Got answer:
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 45996
+;; flags: qr rd ra; QUERY: 1, ANSWER: 1, AUTHORITY: 0, ADDITIONAL: 0
+
+;; QUESTION SECTION:
+;ec2-13-60-19-147.eu-north-1.compute.amazonaws.com. IN A
+
+;; ANSWER SECTION:
+ec2-13-60-19-147.eu-north-1.compute.amazonaws.com. 0 IN A 13.60.19.147
+
+;; Query time: 20 msec
+;; SERVER: 192.168.5.2#53(192.168.5.2) (UDP)
+;; WHEN: Sun Mar 01 10:37:33 UTC 2026
+;; MSG SIZE  rcvd: 132
+```
+
+And you can also execute a curl:
+```sh
+⬢ [Docker] ❯ curl -v ec2-13-60-19-147.eu-north-1.compute.amazonaws.com
+* Host ec2-13-60-19-147.eu-north-1.compute.amazonaws.com:80 was resolved.
+* IPv6: (none)
+* IPv4: 13.60.19.147
+*   Trying 13.60.19.147:80...
+* connect to 13.60.19.147 port 80 from 172.17.0.2 port 50532 failed: Connection refused
+* Failed to connect to ec2-13-60-19-147.eu-north-1.compute.amazonaws.com port 80 after 68 ms: Couldn't connect to server
+* Closing connection
+curl: (7) Failed to connect to ec2-13-60-19-147.eu-north-1.compute.amazonaws.com port 80 after 68 ms: Couldn't connect to server
 ```
