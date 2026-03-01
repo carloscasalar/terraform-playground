@@ -4,6 +4,8 @@ Use `aws configure` to [configure the AWS connection](https://docs.aws.amazon.co
 
 Verify it is properly configured by executing `aws ec2 describe-instances`
 
+Verify that tf files are valid `terraform validate`
+
 ## Infrastructure Architecture
 
 ```mermaid

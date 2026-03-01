@@ -11,6 +11,12 @@ data "aws_ssm_parameter" "ami" {
   name = "/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2"
 }
 
+# Availability zones
+# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/availability_zones
+data "aws_availability_zones" "available" {
+  state = "available"
+}
+
 # RESOURCES
 
 # NETWORKING #
@@ -30,9 +36,19 @@ resource "aws_internet_gateway" "igw" {
 }
 
 resource "aws_subnet" "subnet1" {
-  cidr_block              = var.subnet_cidr_block
+  cidr_block              = var.subnet_cidr_block[0]
   vpc_id                  = aws_vpc.vpc.id
   map_public_ip_on_launch = var.subnet_map_public_ip_on_launch
+  availability_zone       = data.aws_availability_zones.available.names[0]
+
+  tags = local.common_tags
+}
+
+resource "aws_subnet" "subnet2" {
+  cidr_block              = var.subnet_cidr_block[1]
+  vpc_id                  = aws_vpc.vpc.id
+  map_public_ip_on_launch = var.subnet_map_public_ip_on_launch
+  availability_zone       = data.aws_availability_zones.available.names[1]
 
   tags = local.common_tags
 }
@@ -54,6 +70,11 @@ resource "aws_route_table_association" "rta-subnet1" {
   route_table_id = aws_route_table.rtb.id
 }
 
+resource "aws_route_table_association" "rta-subnet2" {
+  subnet_id      = aws_subnet.subnet2.id
+  route_table_id = aws_route_table.rtb.id
+}
+
 # SECURITY GROUPS #
 
 resource "aws_security_group" "nginx-sg" {
@@ -65,7 +86,7 @@ resource "aws_security_group" "nginx-sg" {
     from_port   = var.sg_ingress_tcp_port
     to_port     = var.sg_ingress_tcp_port
     protocol    = "tcp"
-    cidr_blocks = var.sg_ingress_cidr_block
+    cidr_blocks = [var.vpc_cidr_block]
   }
 
   # SSH access from anywhere (for fast debugging. Better only from my ip)
@@ -87,29 +108,25 @@ resource "aws_security_group" "nginx-sg" {
   tags = local.common_tags
 }
 
-# INSTANCES #
-resource "aws_instance" "nginx1" {
-  ami                    = nonsensitive(data.aws_ssm_parameter.ami.value)
-  instance_type          = var.aws_instance_type
-  subnet_id              = aws_subnet.subnet1.id
-  vpc_security_group_ids = [aws_security_group.nginx-sg.id]
+resource "aws_security_group" "alb-sg" {
+  name   = "nginx_alb_sg"
+  vpc_id = aws_vpc.vpc.id
 
-  user_data = <<EOF
-#!/bin/bash
-# Update the system
-dnf update -y
+  # HTTP access from anywhere
+  ingress {
+    from_port   = var.sg_ingress_tcp_port
+    to_port     = var.sg_ingress_tcp_port
+    protocol    = "tcp"
+    cidr_blocks = var.sg_ingress_cidr_block
+  }
 
-# Install NGINX
-dnf install nginx -y
-
-# Start NGINX service
-systemctl start nginx
-
-# Enable NGINX to start on boot
-systemctl enable nginx
-sudo rm /usr/share/nginx/html/index.html
-echo '<html><head><title>Lemon Land Server</title></head><body style=\"background-color:#1F778D\"><p style=\"text-align: center;\"><span style=\"color:#FFFFFF;\"><span style=\"font-size:28px;\">You did it! Have a &#127790;</span></span></p></body></html>' | sudo tee /usr/share/nginx/html/index.html
-  EOF
+  # outbound internet access
+  egress {
+    from_port   = var.sg_egress_tcp_port
+    to_port     = var.sg_egress_tcp_port
+    protocol    = "-1"
+    cidr_blocks = var.sg_egress_cidr_block
+  }
 
   tags = local.common_tags
 }
