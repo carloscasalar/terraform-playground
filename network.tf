@@ -108,7 +108,7 @@ resource "aws_security_group" "nginx-sg" {
   tags = local.common_tags
 }
 
-resource "aws_security_group" "alb-sg" {
+resource "aws_security_group" "lb_sg" {
   name   = "nginx_alb_sg"
   vpc_id = aws_vpc.vpc.id
 

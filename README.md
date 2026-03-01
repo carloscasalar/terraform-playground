@@ -110,3 +110,36 @@ And you can also execute a curl:
 * Closing connection
 curl: (7) Failed to connect to ec2-13-60-19-147.eu-north-1.compute.amazonaws.com port 80 after 68 ms: Couldn't connect to server
 ```
+
+If 22 port is enabled you can run a console inside one of the instances and verify the status of the nginx:
+```sh
+   ,     #_
+   ~\_  ####_        Amazon Linux 2
+  ~~  \_#####\
+  ~~     \###|       AL2 End of Life is 2026-06-30.
+  ~~       \#/ ___
+   ~~       V~' '->
+    ~~~         /    A newer version of Amazon Linux is available!
+      ~~._.   _/
+         _/ _/       Amazon Linux 2023, GA and supported until 2028-03-15.
+       _/m/'           https://aws.amazon.com/linux/amazon-linux-2023/
+
+[ec2-user@ip-10-0-1-86 ~]$ systemctl status nginx
+● nginx.service - The nginx HTTP and reverse proxy server
+   Loaded: loaded (/usr/lib/systemd/system/nginx.service; disabled; vendor preset: disabled)
+   Active: active (running) since Sun 2026-03-01 12:33:02 UTC; 12min ago
+  Process: 2462 ExecStart=/usr/sbin/nginx (code=exited, status=0/SUCCESS)
+  Process: 2458 ExecStartPre=/usr/sbin/nginx -t (code=exited, status=0/SUCCESS)
+  Process: 2457 ExecStartPre=/usr/bin/rm -f /run/nginx.pid (code=exited, status=0/SUCCESS)
+ Main PID: 2464 (nginx)
+   CGroup: /system.slice/nginx.service
+           ├─2464 nginx: master process /usr/sbin/nginx
+           ├─2465 nginx: worker process
+           └─2466 nginx: worker process
+
+Mar 01 12:33:02 ip-10-0-1-86.eu-north-1.compute.internal systemd[1]: Starting The nginx HTTP and reverse proxy server...
+Mar 01 12:33:02 ip-10-0-1-86.eu-north-1.compute.internal nginx[2458]: nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+Mar 01 12:33:02 ip-10-0-1-86.eu-north-1.compute.internal nginx[2458]: nginx: configuration file /etc/nginx/nginx.conf test is successful
+Mar 01 12:33:02 ip-10-0-1-86.eu-north-1.compute.internal systemd[1]: Started The nginx HTTP and reverse proxy server.
+```
+Then with a `curl localhost` you can check it is up and running (just in case you cannot access from your own terminal due to a wrong tf config).
