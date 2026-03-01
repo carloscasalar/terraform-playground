@@ -12,6 +12,9 @@ plan:
 apply:
 	terraform apply d1.tfplan
 
+show:
+	terraform show
+
 fmt:
 	terraform fmt -recursive .
 
@@ -26,6 +29,7 @@ help:
 	@echo "  validate   - Validate Terraform configuration"
 	@echo "  plan       - Create a Terraform plan and save to d1.tfplan"
 	@echo "  apply      - Apply the plan from d1.tfplan"
+	@echo "  show       - Show applied state"
 	@echo "  fmt        - Format all Terraform files"
 	@echo "  clean      - Remove plan files"
 	@echo "  help       - Show this help message"
